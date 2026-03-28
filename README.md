@@ -1,3 +1,10 @@
+---
+title: inferra-openenv
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Inferra - AI Incident Response Environment
 
 A deterministic OpenEnv-compatible environment for training agents to debug production incidents.
