@@ -1,0 +1,56 @@
+name: ai-incident-response-environment
+version: 1.0.0
+description: Deterministic OpenEnv environment for production incident response training.
+
+entrypoints:
+  environment: app.env:IncidentResponseEnv
+  api: app.env:app
+  grader: app.grader:grade_episode
+  baseline: inference.py
+
+runtime:
+  python: ">=3.10"
+  max_runtime_minutes: 20
+  resources:
+    cpu: 2
+    memory_gb: 8
+
+action_space:
+  type: discrete
+  values:
+    - read_logs
+    - check_metrics
+    - inspect_dependency
+    - restart_service
+    - scale_service
+    - rollback_deployment
+    - update_config
+
+observation_space:
+  logs: str
+  metrics:
+    cpu: float
+    memory: float
+    latency: float
+  alerts:
+    - str
+  step_count: int
+
+tasks:
+  - id: easy
+    difficulty: easy
+    objective: Fix high CPU caused by infinite loop bug.
+  - id: medium
+    difficulty: medium
+    objective: Resolve high latency from database bottleneck.
+  - id: hard
+    difficulty: hard
+    objective: Recover service from bad configuration deployment.
+
+api_endpoints:
+  - /reset
+  - /step
+  - /state
+  - /tasks
+  - /grader
+  - /baseline
