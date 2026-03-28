@@ -371,13 +371,18 @@ def tasks_endpoint() -> Dict[str, Any]:
 
 
 @app.post("/reset")
-def reset_endpoint(request: ResetRequest) -> Dict[str, Any]:
-    if request.task_id is not None and request.task_id not in TASK_CATALOG:
+def reset_endpoint(request: Optional[ResetRequest] = None) -> Dict[str, Any]:
+    task_id = "easy"
+    if request and request.task_id:
+        task_id = request.task_id
+
+    if task_id not in ["easy", "medium", "hard"]:
         raise HTTPException(
             status_code=400,
-            detail=f"Unknown task_id: {request.task_id}",
+            detail=f"Unknown task_id: {task_id}",
         )
-    observation = ENV.reset(task_id=request.task_id)
+
+    observation = ENV.reset(task_id=task_id)
     return observation.model_dump()
 
 
