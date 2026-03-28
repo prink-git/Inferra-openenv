@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Tuple
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel
 
 from app.grader import grade_episode
@@ -371,7 +371,7 @@ def tasks_endpoint() -> Dict[str, Any]:
 
 
 @app.post("/reset")
-def reset_endpoint(request: Optional[ResetRequest] = None) -> Dict[str, Any]:
+def reset_endpoint(request: Optional[ResetRequest] = Body(default=None)) -> Dict[str, Any]:
     task_id = "easy"
     if request and request.task_id:
         task_id = request.task_id
