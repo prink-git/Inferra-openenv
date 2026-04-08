@@ -22,6 +22,10 @@ ALLOWED_ACTIONS = [
 ]
 
 
+def _emit(line: str) -> None:
+    print(line, flush=True)
+
+
 def _heuristic_action(observation: Observation) -> Action:
     logs_lower = observation.logs.lower()
     latency = observation.metrics.get("latency", 0.0)
@@ -92,6 +96,7 @@ def _llm_action(client: OpenAI, model_name: str, observation: Observation) -> Ac
 def run_task(task_id: str, use_openai: bool = True, max_steps: int = 8) -> Dict[str, Any]:
     env = IncidentResponseEnv(task_id=task_id, max_steps=max_steps)
     observation = env.reset(task_id=task_id)
+    _emit(f"[START] task={task_id}")
 
     api_key = os.getenv("OPENAI_API_KEY", "")
     base_url = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
@@ -102,16 +107,33 @@ def run_task(task_id: str, use_openai: bool = True, max_steps: int = 8) -> Dict[
         client = OpenAI(api_key=api_key, base_url=base_url)
 
     done = False
+    step_num = 0
     while not done:
         if client is not None:
             action = _llm_action(client, model_name, observation)
         else:
             action = _heuristic_action(observation)
 
-        observation, _reward, done, _info = env.step(action)
+        observation, reward, done, _info = env.step(action)
+        step_num += 1
+        _emit(
+            "[STEP] "
+            f"task={task_id} "
+            f"step={step_num} "
+            f"action={action.action_type} "
+            f"reward={reward.value} "
+            f"done={done}"
+        )
 
     final_state = env.state()
     score = grade_episode(final_state, final_state["action_history"])
+    _emit(
+        "[END] "
+        f"task={task_id} "
+        f"score={score} "
+        f"steps={len(final_state['action_history'])} "
+        f"resolved={final_state['resolved']}"
+    )
 
     return {
         "task_id": task_id,
