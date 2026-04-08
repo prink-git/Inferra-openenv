@@ -416,4 +416,4 @@ def grader_endpoint(request: GraderRequest) -> Dict[str, float]:
 def baseline_endpoint() -> Dict[str, Any]:
     from inference import run_baseline_suite
 
-    return run_baseline_suite(use_openai=False)
+    return run_baseline_suite(use_openai=True)
