@@ -71,15 +71,18 @@ def _llm_action(client: OpenAI, model_name: str, observation: Observation) -> Ac
         ),
     }
 
-    response = client.chat.completions.create(
-        model=model_name,
-        messages=[
-            {"role": "system", "content": "You are a precise SRE assistant."},
-            prompt,
-        ],
-        temperature=0,
-        max_tokens=120,
-    )
+    try:
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=[
+                {"role": "system", "content": "You are a precise SRE assistant."},
+                prompt,
+            ],
+            temperature=0,
+            max_tokens=120,
+        )
+    except Exception:
+        return _heuristic_action(observation)
 
     content = response.choices[0].message.content or "{}"
     try:
@@ -105,14 +108,20 @@ def run_task(task_id: str, use_openai: bool = True, max_steps: int = 8) -> Dict[
 
     client = None
     if use_openai and api_key:
-        client = OpenAI(api_key=api_key, base_url=base_url)
+        try:
+            client = OpenAI(api_key=api_key, base_url=base_url)
+        except Exception:
+            client = None
 
     done = False
     step_num = 0
     while not done:
-        if client is not None:
-            action = _llm_action(client, model_name, observation)
-        else:
+        try:
+            if client is not None:
+                action = _llm_action(client, model_name, observation)
+            else:
+                action = _heuristic_action(observation)
+        except Exception:
             action = _heuristic_action(observation)
 
         observation, reward, done, _info = env.step(action)
