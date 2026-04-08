@@ -98,7 +98,8 @@ def run_task(task_id: str, use_openai: bool = True, max_steps: int = 8) -> Dict[
     observation = env.reset(task_id=task_id)
     _emit(f"[START] task={task_id}")
 
-    api_key = os.getenv("OPENAI_API_KEY", "")
+    # Validator injects API_KEY/API_BASE_URL for proxy-routed calls.
+    api_key = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY", "")
     base_url = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
     model_name = os.getenv("MODEL_NAME", "gpt-4.1-mini")
 
