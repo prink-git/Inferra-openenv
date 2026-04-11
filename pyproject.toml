@@ -18,6 +18,7 @@ dependencies = [
 
 [project.scripts]
 server = "server.app:main"
+benchmark = "benchmark:main"
 
 [tool.setuptools]
 packages = ["app", "server"]

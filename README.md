@@ -110,6 +110,26 @@ Interpretation:
 - medium requires stronger reasoning and dependency-aware investigation
 - hard remains challenging even with competent policy behavior
 
+## Advanced Benchmarking (Top-Tier Evaluation)
+
+This project now includes a comparative benchmark harness to evaluate reasoning quality across multiple policies:
+
+- `diagnosis_first`: disciplined investigation-first strategy
+- `fix_first`: shortcut-heavy strategy to expose failure modes
+- `random`: seeded random-action policy for robustness calibration
+
+The benchmark reports:
+
+- average score and resolve rate per policy
+- efficiency and action-discipline metrics (steps, harmful, unnecessary)
+- per-task score breakdown across easy, medium, hard
+
+Run:
+
+```bash
+python benchmark.py
+```
+
 ### Example Requests
 
 Reset to hard task:
